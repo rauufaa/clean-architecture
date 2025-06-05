@@ -24,6 +24,7 @@ COPY . .
 
 FROM base AS release
 RUN apt-get update -y && apt-get install -y openssl
+RUN apt-get install -y iputils-ping
 COPY --from=install /temp/prod/node_modules node_modules
 COPY --from=prerelease /app .
 COPY --from=prerelease /app/package.json .

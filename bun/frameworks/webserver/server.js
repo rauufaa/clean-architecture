@@ -66,7 +66,7 @@ export default function serverConfig(app, serverInit, dbPrismaConnect, config) {
         });
 
         try {
-            // await checkConnection();
+            await checkConnection();
             await app.listen({ port: 3000})
         } catch (error) {
             throw error
