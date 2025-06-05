@@ -31,6 +31,5 @@ ENV DATABASE_URL="postgresql://admin:secret@mydb:7777/netflix?schema=public"
 RUN bunx prisma generate
 
 # run the app
-USER bun
 EXPOSE 3000/tcp
 ENTRYPOINT [ "bun", "run", "app.js" ]
