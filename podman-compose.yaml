@@ -1,0 +1,14 @@
+version: '3'
+services:
+  postgres:
+    build: ./postgres
+
+  bunapp:
+    build: ./bun
+    depends_on:
+      postgres:
+        condition: service_healthy
+        restart: true
+    ports: 
+      - "3000:3000"
+    
