@@ -50,7 +50,7 @@ const headersJsonSchema = {
     type: "object",
     required: ["Content-type"],
     properties: {
-        "content-type": {
+        "Content-type": {
             type: "string"
         }
     }
