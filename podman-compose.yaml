@@ -1,14 +1,45 @@
 version: '3'
 services:
-  postgres:
-    build: ./postgres
-
-  bunapp:
-    build: ./bun
+  nginx: 
+    build: 
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: nginx-bun-prod
+    ports:
+      - "8080:80"
+      - "4433:443"
+    networks:
+      - frontend
     depends_on:
-      postgres:
-        condition: service_healthy
-        restart: true
-    ports: 
-      - "3000:3000"
+      - bunapp
     
+  bunapp:
+    build:
+      context: ./bun
+      dockerfile: Dockerfile
+    container_name: bunapp-prod
+    ports:
+      - "3000:3000"
+    networks:
+      - frontend
+      - backend
+    environment:
+      - DATABASE_URL=postgresql://admin:secret@postgres:5432/netflix?schema=public
+    depends_on: 
+      - postgres   
+
+  postgres:
+    build:
+      context: ./postgres
+      dockerfile: Dockerfile
+    container_name: postgres-bun-prod
+    networks: 
+      - backend
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=netflix
+
+networks:
+  frontend:
+  backend:

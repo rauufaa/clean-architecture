@@ -35,7 +35,7 @@ CREATE TABLE public.netflix_shows (
     duration text,
     listed_in text,
     description text,
-    deleted_at datetime
+    deleted_at timestamp
 );
 
 

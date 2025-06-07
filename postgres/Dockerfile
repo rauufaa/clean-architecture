@@ -1,4 +1,4 @@
-FROM postgres:alpine
+FROM docker.io/library/postgres:alpine
 
 ENV POSTGRES_USER=admin
 ENV POSTGRES_PASSWORD=secret

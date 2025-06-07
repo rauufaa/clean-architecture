@@ -53,7 +53,7 @@ export default function serverConfig(app, serverInit, dbPrismaConnect, config) {
 
     async function startServer() {
         serverInit.on('close', () => {
-            console.log('Server berhasil ditutup');
+            console.log('Server closed successful');
         });
         process.on('SIGTERM', () => onSignal('SIGTERM'));
         process.on('SIGINT', () => onSignal('SIGINT'));
