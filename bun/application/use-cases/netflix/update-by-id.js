@@ -1,6 +1,6 @@
 import show from "../../../src/entities/show";
 
-export default async function updateById({
+export default function updateById({
     showId,
     type,
     title,

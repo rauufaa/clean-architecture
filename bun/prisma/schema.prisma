@@ -28,4 +28,5 @@ model netflix_shows {
   duration     String?
   listed_in    String?
   description  String?
+  deleted_at   DateTime?
 }

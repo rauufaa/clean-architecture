@@ -15,6 +15,7 @@ export default function netflixRoutes(fastify) {
     fastify.get('/netflix/shows/:showId', { schema: getNetflixSchema }, async (request, reply) => {
 
         const result = await controller.getShow(request.params)
+        console.log(result)
         // reply.code(statusCode).send(result)
         reply.code(200).send({ ok: "SUCCED ", data: result })
 
@@ -25,6 +26,7 @@ export default function netflixRoutes(fastify) {
         // const { statusCode, result } = await controller.getProduct(request.body)
         // reply.code(statusCode).send(result)
         const result = await controller.getPagingShow(request.query)
+        // console.log(result)
         reply.code(200).send({ ok: "SUCCED", data:result})
 
     })

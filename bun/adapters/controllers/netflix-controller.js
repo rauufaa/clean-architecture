@@ -12,18 +12,26 @@ export default function netflixControllerFastify(
     const dbRepository = showDbRepository(showDbRepositoryImpl());
 
     const getShow = async (params) => {
-        const shows = await findById(params.showId, dbRepository);
-        // if (!shows.rows[0]) throw new ResponseError(404, "User not found");
-        return shows
+        try {
+            const shows = await findById(params.showId, dbRepository);
+            return shows
+        } catch (error) {
+            throw new Error(error);
+        }
+
     }
 
     const getPagingShow = async (query) => {
-        const shows = await findAllPaging(query.search, query.page, query.limit, dbRepository);
-        // if (!shows.rows[0]) throw new ResponseError(404, "User not found");
-        return shows.map((e)=>({
-            ...e,
-            date_added: new Intl.DateTimeFormat('en-CA').format(new Date(e.date_added))
-        }))
+        try {
+            const shows = await findAllPaging(query.search, query.page, query.limit, dbRepository);
+            return shows.map((e) => ({
+                ...e,
+                date_added: new Intl.DateTimeFormat('en-CA').format(new Date(e.date_added))
+            }))
+        } catch (error) {
+            throw new Error(error);
+        }
+
     }
 
     const postShow = async (body) => {
@@ -38,22 +46,27 @@ export default function netflixControllerFastify(
             duration,
             listedIn,
             description } = body
-        
-        const shows = await add({
-            type,
-            title,
-            director,
-            castMembers,
-            country,
-            dateAdded,
-            releaseYear,
-            rating,
-            duration,
-            listedIn,
-            description
-        }, dbRepository);
-        // if (!shows.rows[0]) throw new ResponseError(404, "User not found");
-        return shows
+
+        try {
+            const shows = await add({
+                type,
+                title,
+                director,
+                castMembers,
+                country,
+                dateAdded,
+                releaseYear,
+                rating,
+                duration,
+                listedIn,
+                description
+            }, dbRepository);
+            return shows
+        } catch (error) {
+            throw new Error(error);
+        }
+
+
     }
 
     const putShow = async (params, body) => {
@@ -68,30 +81,40 @@ export default function netflixControllerFastify(
             duration,
             listedIn,
             description } = body
-        
-        const shows = await updateById({
-            showId: params.showId,
-            type,
-            title,
-            director,
-            castMembers,
-            country,
-            dateAdded,
-            releaseYear,
-            rating,
-            duration,
-            listedIn,
-            description
-        }, dbRepository);
-        // if (!shows.rows[0]) throw new ResponseError(404, "User not found");
-        return shows
+
+        try {
+            const shows = await updateById({
+                showId: params.showId,
+                type,
+                title,
+                director,
+                castMembers,
+                country,
+                dateAdded,
+                releaseYear,
+                rating,
+                duration,
+                listedIn,
+                description
+            }, dbRepository);
+            return shows
+        } catch (error) {
+            throw new Error(error);
+        }
+
+
     }
 
 
     const deleteShow = async (params) => {
-        const shows = await deleteById(params.showId, dbRepository);
-        // if (!shows.rows[0]) throw new ResponseError(404, "User not found");
-        return shows
+        try {
+            const shows = await deleteById(params.showId, dbRepository);
+            // if (!shows.rows[0]) throw new ResponseError(404, "User not found");
+            return shows
+        } catch (error) {
+            throw new Error(error);
+        }
+
     }
 
     return {
@@ -103,69 +126,3 @@ export default function netflixControllerFastify(
     }
 }
 
-class showController {
-    constructor() { }
-
-    async getshow(req, res, next) {
-        try {
-            const result = await showsService.get(req.params.code);
-            res.status(200).json({
-                status: 'OK',
-                data: result
-            })
-        } catch (error) {
-            next(error)
-        }
-    }
-
-    async postAddNewshow(req, res, next) {
-        try {
-            const result = await showsService.post(req.body);
-            res.status(200).json({
-                status: 'OK',
-                message: 'show added successfully',
-                data: result
-            })
-        } catch (error) {
-            next(error)
-        }
-    }
-
-    async putUpdateshow(req, res, next) {
-        try {
-            const result = await showsService.put(req.body, req.params.code);
-            res.status(200).json({
-                status: 'OK',
-                message: 'show updated successfully',
-                data: result
-            })
-        } catch (error) {
-            next(error)
-        }
-    }
-
-    async patchUpdateshow(req, res, next) {
-        try {
-            const result = await showsService.patch(req.body, req.params.code);
-            res.status(200).json({
-                status: 'OK',
-                message: 'show partially updated successfully',
-                data: result
-            })
-        } catch (error) {
-            next(error)
-        }
-    }
-
-    async removeshow(req, res, next) {
-        try {
-            await showsService.remove(req.params.code);
-            res.status(200).json({
-                status: 'OK',
-                message: 'show deleted successfully'
-            });
-        } catch (error) {
-            next(error)
-        }
-    }
-}

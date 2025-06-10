@@ -1,6 +1,6 @@
 import show from "../../../src/entities/show";
 
-export default async function add({
+export default function add({
     type,
     title,
     director,

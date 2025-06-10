@@ -1,35 +1,13 @@
 # use the official Bun image
-# see all versions at https://hub.docker.com/r/oven/bun/tags
 FROM oven/bun:latest AS base
 WORKDIR /app
 
-# install dependencies into temp directory
-# this will cache them and speed up future builds
-# FROM base AS install
-# RUN mkdir -p /temp/dev
-# COPY package.json /temp/dev/
-# RUN cd /temp/dev && bun install
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
-# # install with --production (exclude devDependencies)
-# RUN mkdir -p /temp/prod
-# COPY package.json /temp/prod/
-# RUN cd /temp/prod && bun install --production
-
-# # copy node_modules from temp directory
-# # then copy all (non-ignored) project files into the image
-# FROM base AS prerelease
-# COPY --from=install /temp/prod/node_modules node_modules
-# COPY . .
-
-
-# FROM base AS release
-RUN apt-get update -y && apt-get install -y openssl
-RUN apt-get install -y iputils-ping
-COPY . .
+COPY package.json bun.lockb ./
 RUN bun install
-ENV DATABASE_URL="postgresql://admin:secret@mydb:7777/netflix?schema=public"
 RUN bunx prisma generate
 
-# run the app
+COPY . .
 EXPOSE 3000
-ENTRYPOINT [ "bun", "run", "app.js" ]
+CMD ["bun", "run", "app.js"]
