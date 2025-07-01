@@ -1,0 +1,23 @@
+version: '3'
+services:
+  nginx: 
+    build: 
+      context: ./nginx
+      dockerfile: Dockerfile
+      image: nginx-bun-prod
+    
+  bunapp:
+    build:
+      context: ./bun
+      dockerfile: Dockerfile
+      image: bun-app-prod
+
+  postgres:
+    build:
+      context: ./postgres
+      dockerfile: Dockerfile
+      image: postgres-bun-prod
+
+networks:
+  frontend:
+  backend:

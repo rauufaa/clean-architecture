@@ -1,9 +1,9 @@
 import http from "http";
-import serverConfig from "./frameworks/webserver/server";
-import routes from "./frameworks/webserver/routes";
+import serverConfig from "./frameworks/webserver/server.js";
+import routes from "./frameworks/webserver/routes.js";
 import Fastify from 'fastify';
-import fastifyConfig from "./frameworks/webserver/fastify";
-import prisma from "./frameworks/database/postgres/connection";
+import fastifyConfig from "./frameworks/webserver/fastify.js";
+import prisma from "./frameworks/database/postgres/connection.js";
 
 
 
