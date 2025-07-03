@@ -3,6 +3,7 @@ import deleteById from "../../application/use-cases/netflix/delete-by-id";
 import findAllPaging from "../../application/use-cases/netflix/find-all-paging";
 import findById from "../../application/use-cases/netflix/find-by-id";
 import updateById from "../../application/use-cases/netflix/update-by-id";
+import { ResponseError } from "../../src/exceptions/response-error";
 
 
 export default function netflixControllerFastify(
@@ -16,7 +17,7 @@ export default function netflixControllerFastify(
             const shows = await findById(params.showId, dbRepository);
             return shows
         } catch (error) {
-            throw new Error(error);
+            throw error;
         }
 
     }
@@ -24,12 +25,9 @@ export default function netflixControllerFastify(
     const getPagingShow = async (query) => {
         try {
             const shows = await findAllPaging(query.search, query.page, query.limit, dbRepository);
-            return shows.map((e) => ({
-                ...e,
-                date_added: new Intl.DateTimeFormat('en-CA').format(new Date(e.date_added))
-            }))
+            return shows;
         } catch (error) {
-            throw new Error(error);
+            throw error;
         }
 
     }
@@ -63,7 +61,7 @@ export default function netflixControllerFastify(
             }, dbRepository);
             return shows
         } catch (error) {
-            throw new Error(error);
+            throw error;
         }
 
 
@@ -99,7 +97,7 @@ export default function netflixControllerFastify(
             }, dbRepository);
             return shows
         } catch (error) {
-            throw new Error(error);
+            throw error;
         }
 
 
@@ -109,10 +107,9 @@ export default function netflixControllerFastify(
     const deleteShow = async (params) => {
         try {
             const shows = await deleteById(params.showId, dbRepository);
-            // if (!shows.rows[0]) throw new ResponseError(404, "User not found");
             return shows
         } catch (error) {
-            throw new Error(error);
+            throw error;
         }
 
     }

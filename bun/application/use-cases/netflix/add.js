@@ -1,6 +1,6 @@
 import show from "../../../src/entities/show";
 
-export default function add({
+export default async function add({
     type,
     title,
     director,
@@ -42,5 +42,8 @@ export default function add({
         listedIn,
         description
     })
-    return showRepository.add(newShow);
+
+    const show = await showRepository.add(newShow);
+    if(!show) throw new ResponseError(404, "Show is not found")
+    return show
 }
