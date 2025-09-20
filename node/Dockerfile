@@ -1,14 +1,14 @@
 # use the official Bun image
-FROM docker.io/library/node:24.3 AS base
+FROM docker.io/oven/bun:1.2 AS base
 WORKDIR /app
 
 RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
-COPY package.json package-lock.json ./
+COPY package.json bun.lock ./
 
-RUN npm install
+RUN bun install
 COPY . .
-RUN npx prisma generate
+RUN bunx prisma generate
 
 EXPOSE 3000
-CMD ["node", "app.js"]
+CMD ["bun", "run", "app.js"]

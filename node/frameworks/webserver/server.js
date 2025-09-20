@@ -5,7 +5,7 @@ export default function serverConfig(app, serverInit, dbPrismaConnect, config) {
 
     function beforeShutdown() {
         return new Promise((resolve) => {
-            setTimeout(resolve, 15000);
+            setTimeout(resolve, 5000);
         });
     }
 
@@ -31,15 +31,6 @@ export default function serverConfig(app, serverInit, dbPrismaConnect, config) {
         console.log(`\nReceived ${signal}, shutting down gracefully...`);
 
         await onShutdown();
-
-        // try {
-        //     await dbPool.end();
-        //     console.log('Database connection closed.');
-        //     process.exit(0); // keluar dengan sukses
-        // } catch (error) {
-        //     console.error('Error during shutdown:', error);
-        //     process.exit(1); // keluar dengan error
-        // }
     }
 
     async function checkConnection() {
@@ -67,7 +58,7 @@ export default function serverConfig(app, serverInit, dbPrismaConnect, config) {
 
         try {
             await checkConnection();
-            await app.listen({ port: 3000, host: "0.0.0.0"})
+            await app.listen({ port: config.port, host: config.ip})
         } catch (error) {
             throw error
         }

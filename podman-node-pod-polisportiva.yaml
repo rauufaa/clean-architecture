@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: node-pod-polisportiva
+spec:
+  containers:
+    - name: postgres
+      image: postgres:node-1.0
+      env:
+        - name: POSTGRES_USER
+          value: admin
+        - name: POSTGRES_PASSWORD
+          value: secret
+        - name: POSTGRES_DB
+          value: polisportiva
+      resources:
+        limits: 
+          cpu: "1"
+          memory: "1Gi"
+        requests: 
+          cpu: "1"
+          memory: "1Gi"
+
+    - name: fastify-app
+      image: node:node-1.0
+      env:
+        - name: APP_IP
+          value: 0.0.0.0
+        - name: APP_PORT
+          value: 3000
+        - name: POSTGRES_URL
+          value: postgresql://admin:secret@localhost:5432/polisportiva?schema=public
+        - name: JWT_SECRET
+          value: wFJfi7FB9fjhhibD98id9B3IIB3
+        - name: JWT_EXP_DURATION
+          value: 1h
+      resources:
+        limits: 
+          cpu: "1"
+          memory: "1Gi"
+        requests: 
+          cpu: "1"
+          memory: "1Gi"
+      ports:
+        - containerPort: 3000
+          hostPort: 3000
+
+    # - name: haproxy
+    #   image: haproxy:bun-1.0
+    #   ports:
+    #     - containerPort: 80
+    #       hostPort: 80
+    #     - containerPort: 443
+    #       hostPort: 443

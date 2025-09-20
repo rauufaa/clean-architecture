@@ -1,31 +1,106 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"
+  runtime  = "bun"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("POSTGRES_URL")
 }
 
-model netflix_shows {
-  show_id      String   @id @unique @default(uuid())
-  type         String?
-  title        String?
-  director     String?
-  cast_members String? 
-  country      String?
-  date_added   DateTime? @default(now()) @db.Date()
-  release_year Int?
-  rating       String?
-  duration     String?
-  listed_in    String?
-  description  String?
-  deleted_at   DateTime?
+model Address {
+  id               Int              @id(map: "PK_d92de1f82754668b5f5f5dd4fd5") @default(autoincrement())
+  state            String           @db.VarChar
+  city             String           @db.VarChar
+  streetName       String           @db.VarChar
+  streetNumber     String           @db.VarChar
+  postcode         String           @db.VarChar
+  sportsfacilities SportsFacility[]
+  users            User[]
+
+  @@map("address")
+}
+
+model PriceList {
+  id           Int           @id(map: "PK_52ea7826468b1c889cb2c28df03") @default(autoincrement())
+  pricePerHour Int
+  sportsFields SportsField[]
+
+  @@map("price_list")
+}
+
+model Reservation {
+  id                 Int                 @id(map: "PK_48b1f9922368359ab88e8bfa525") @default(autoincrement())
+  startDate          DateTime            @db.Timestamp(6)
+  endDate            DateTime            @db.Timestamp(6)
+  createdAt          DateTime            @db.Timestamp(6)
+  state              String              @db.VarChar
+  price              Int
+  userId             Int?                @map("user_id")
+  sportsFieldId      Int?
+  sportsField        SportsField?        @relation(fields: [sportsFieldId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ae138407fdac0c470d6b5a82ac2")
+  user               User?               @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_e219b0a4ff01b85072bfadf3fd7")
+  reservationRatings ReservationRating[]
+
+  @@map("reservation")
+}
+
+model ReservationRating {
+  id            Int          @id(map: "PK_9cdefd88c55996990945a8dc7da") @default(autoincrement())
+  rating        Int
+  description   String       @db.VarChar
+  reservationId Int?
+  reservation   Reservation? @relation(fields: [reservationId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_d703e54cc5c99da8ddbb1a62755")
+
+  @@map("reservation_rating")
+}
+
+model SportsFacility {
+  id                Int           @id(map: "PK_83fb4cce21fb04c7abce0bcaf8e") @default(autoincrement())
+  name              String        @db.VarChar
+  totalSportsFields Int
+  phone             String        @db.VarChar
+  addressId         Int?
+  userId            Int?          @map("user_id")
+  user              User?         @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_41d03087ce9983821b5349aa28d")
+  address           Address?      @relation(fields: [addressId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_e8c98fd724b9ab11b142eee48df")
+  sportsFields      SportsField[]
+
+  @@map("sports_facility")
+}
+
+model SportsField {
+  id              Int             @id(map: "PK_4f7c4027b0b91efffd7d8bb4222") @default(autoincrement())
+  name            String          @db.VarChar
+  sport           String          @db.VarChar
+  isIndoor        Boolean
+  soccerFieldType String          @db.VarChar
+  tennisFieldType String          @db.VarChar
+  priceListId     Int?
+  userId          Int?            @map("user_id")
+  sportFacilityId Int?
+  reservations    Reservation[]
+  sportsFacility  SportsFacility? @relation(fields: [sportFacilityId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_0f96197c61bea85d49e8cce215a")
+  user            User?           @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_8b4464cc4ac2a78c86ebcff2e8d")
+  priceList       PriceList?      @relation(fields: [priceListId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_b5144168d060a8b27ba2e9e1d21")
+
+  @@map("sports_field")
+}
+
+model User {
+  id               Int              @id(map: "PK_cace4a159ff9f2512dd42373760") @default(autoincrement())
+  username         String           @db.VarChar
+  password         String           @db.VarChar
+  email            String           @db.VarChar
+  firstName        String           @db.VarChar
+  lastName         String           @db.VarChar
+  fiscalCode       String           @db.VarChar
+  addressId        Int?
+  reservations     Reservation[]
+  sportsFacilities SportsFacility[]
+  sportsFields     SportsField[]
+  address          Address?         @relation(fields: [addressId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_217ba147c5de6c107f2fa7fa271")
+
+  @@map("user")
 }

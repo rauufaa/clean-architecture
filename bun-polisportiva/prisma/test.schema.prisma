@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+  runtime  = "bun"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Address {
+  id             Int              @id
+  state          String?          @db.VarChar(255)
+  city           String?          @db.VarChar(255)
+  streetName     String?          @map("street_name") @db.VarChar(255)
+  streetNumber   String?          @map("street_number") @db.VarChar(255)
+  postcode       String?          @db.VarChar(255)
+  sportsFacility SportsFacility[]
+  user           User[]
+
+  @@map("address")
+}
+
+model PriceList {
+  id           Int           @id
+  pricePerHour Float?        @map("price_per_hour")
+  sportsField  SportsField[]
+
+  @@map("price_list")
+}
+
+model Reservation {
+  id                Int                 @id
+  sportsFieldId     Int?                @map("sports_field_id")
+  ownerId           Int?                @map("owner_id")
+  startDate         DateTime            @map("start_date") @db.Timestamp(6)
+  endDate           DateTime            @map("end_date") @db.Timestamp(6)
+  createdAt         DateTime?           @map("created_at") @db.Timestamp(6)
+  state             String?             @db.VarChar(10)
+  price             Float?
+  user              User?               @relation(fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sportsField       SportsField?        @relation(fields: [sportsFieldId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  reservationRating ReservationRating[]
+
+  @@map("reservation")
+}
+
+model ReservationRating {
+  id            Int          @id
+  rating        Float?
+  description   String?      @db.VarChar(250)
+  reservationId Int?         @map("reservation_id")
+  reservation   Reservation? @relation(fields: [reservationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("reservation_rating")
+}
+
+model ReservationsSummary {
+  id                      Int                       @id @default(autoincrement())
+  sportsFacilityId        Int?                      @map("sports_facility_id")
+  sportsFacilityName      String?                   @map("sports_facility_name") @db.VarChar(25)
+  description             String?                   @db.VarChar(150)
+  startDate               DateTime?                 @map("start_date") @db.Timestamp(6)
+  endDate                 DateTime?                 @map("end_date") @db.Timestamp(6)
+  createdAt               DateTime?                 @map("created_at") @db.Timestamp(6)
+  sportsFacility          SportsFacility?           @relation(fields: [sportsFacilityId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sportsReservationReport SportsReservationReport[]
+
+  @@map("reservations_summary")
+}
+
+model SportsFacility {
+  id                  Int                   @id
+  ownerId             Int?                  @map("owner_id")
+  name                String?               @db.VarChar(25)
+  totalSportsFields   Int?                  @map("total_sports_fields")
+  addressId           Int?                  @map("address_id")
+  phone               String?               @db.VarChar
+  reservationsSummary ReservationsSummary[]
+  address             Address?              @relation(fields: [addressId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user                User?                 @relation(fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sportsField         SportsField[]
+
+  @@map("sports_facility")
+}
+
+model SportsField {
+  id               Int             @id @default(autoincrement())
+  sportsFacilityId Int?            @map("sports_facility_id")
+  name             String?         @db.VarChar(25)
+  sport            String?         @db.VarChar(25)
+  isIndoor         Boolean?        @map("is_indoor")
+  ownerId          Int?            @map("owner_id")
+  priceListId      Int?            @map("price_list_id")
+  soccerFieldType  String?         @map("soccer_field_type") @db.VarChar(25)
+  tennisFieldType  String?         @map("tennis_field_type") @db.VarChar(25)
+  reservation      Reservation[]
+  user             User?           @relation(fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  priceList        PriceList?      @relation(fields: [priceListId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sportsFacility   SportsFacility? @relation(fields: [sportsFacilityId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("sports_field")
+}
+
+model SportsReservationReport {
+  id                    Int                  @id
+  totalReservations     Int?                 @map("total_reservations")
+  sport                 String?              @db.VarChar(15)
+  totalRevenue          Float?               @map("total_revenue")
+  rejectedReservations  Int?                 @map("rejected_reservations")
+  pendingReservations   Int?                 @map("pending_reservations")
+  acceptedReservations  Int?                 @map("accepted_reservations")
+  idReservationsSummary Int?                 @map("id_reservations_summary")
+  reservationsSummary   ReservationsSummary? @relation(fields: [idReservationsSummary], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("sports_reservation_report")
+}
+
+model User {
+  id             Int              @id
+  username       String?          @db.VarChar(255)
+  password       String?          @db.VarChar(128)
+  addressId      Int?             @map("address_id")
+  email          String?          @db.VarChar(100)
+  firstName      String?          @map("first_name") @db.VarChar(25)
+  lastName       String?          @map("last_name") @db.VarChar(25)
+  fiscalCode     String?          @unique(map: "ix_user_fiscal_code") @map("fiscal_code") @db.VarChar(100)
+  reservation    Reservation[]
+  sportsFacility SportsFacility[]
+  sportsField    SportsField[]
+  address        Address?         @relation(fields: [addressId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("user")
+}

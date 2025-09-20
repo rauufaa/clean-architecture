@@ -1,0 +1,42 @@
+# use the official Bun image
+# see all versions at https://hub.docker.com/r/oven/bun/tags
+FROM docker.io/library/node:24.3-slim AS base
+WORKDIR /app
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+
+# install dependencies into temp directory
+# this will cache them and speed up future builds
+FROM base AS install
+RUN mkdir -p /temp/dev
+COPY package.json package-lock.json /temp/dev/
+RUN cd /temp/dev && npm install
+
+# install with --production (exclude devDependencies)
+RUN mkdir -p /temp/prod
+COPY package.json package-lock.json /temp/prod/
+RUN cd /temp/prod && npm install
+
+# copy node_modules from temp directory
+# then copy all (non-ignored) project files into the image
+FROM base AS prerelease
+COPY --from=install /temp/dev/node_modules node_modules
+COPY . .
+RUN npx prisma generate
+
+# [optional] tests & build
+ENV NODE_ENV=production
+ENV DATABASE_URL=postgresql://admin:secret@localhost:5432/netflix?schema=public
+# RUN bun test
+RUN npm run build
+
+# copy production dependencies and source code into final image
+FROM base AS release
+# COPY --from=install /temp/prod/node_modules node_modules
+COPY --from=prerelease /app/dist/* .
+RUN mkdir -p src/generated/prisma
+COPY --from=prerelease /app/src/generated/prisma/* src/generated/prisma/
+
+# run the app
+# USER bun
+EXPOSE 3000
+CMD ["node", "app.js"]
